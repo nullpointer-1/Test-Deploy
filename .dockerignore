@@ -1,5 +1,5 @@
 # Ignore compiled output
-target/
+
 
 # Ignore Git repo metadata
 .git
