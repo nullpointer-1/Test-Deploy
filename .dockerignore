@@ -1,0 +1,15 @@
+# Ignore compiled output
+target/
+
+# Ignore Git repo metadata
+.git
+.gitignore
+
+# Ignore documentation or local dev files
+README.md
+*.iml
+.idea/
+.vscode/
+
+# Ignore Dockerfile itself (optional)
+Dockerfile
