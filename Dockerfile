@@ -5,7 +5,7 @@ FROM openjdk:21-jdk-slim
 WORKDIR /app
 
 # Copy the built jar file into the container
-COPY target1/*.jar app.jar
+COPY target/*.jar app.jar
 
 # Expose the port (Render sets $PORT env var)
 EXPOSE 8080
