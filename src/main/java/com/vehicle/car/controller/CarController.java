@@ -1,5 +1,8 @@
 package com.vehicle.car.controller;
 
+import com.vehicle.car.DTO.ContactRequest;
+import com.vehicle.car.service.EmailService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -7,6 +10,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.vehicle.car.model.*;
 import com.vehicle.car.service.CarService;
 
+import com.vehicle.car.DTO.ContactRequest;
+import com.vehicle.car.service.EmailService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.Map;
 
@@ -98,6 +105,8 @@ public class CarController {
         return "redirect:/";
     }
 
+
+
     @DeleteMapping("delete/{id}")
     public ResponseEntity<Void> deleteCar(@PathVariable Long id) {
         boolean deleted = carService.deleteCarById(id);
@@ -107,6 +116,8 @@ public class CarController {
             return ResponseEntity.notFound().build();
         }
     }
+
+
 
 
 

@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   AOS.init({
     duration: 1000,
     once: true,
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const navToggle = document.getElementById('navToggle');
   const navLinks = document.getElementById('navLinks');
 
-  window.addEventListener('scroll', function() {
+  window.addEventListener('scroll', function () {
     if (window.scrollY > 50) {
       navbar.classList.add('scrolled');
     } else {
@@ -19,82 +19,99 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Mobile Menu Toggle
-  navToggle.addEventListener('click', function() {
-    navLinks.classList.toggle('active');
-  });
-
-  // Close mobile menu when clicking on a link
-  const navItems = document.querySelectorAll('.nav-links li a');
-  navItems.forEach(item => {
-    item.addEventListener('click', function() {
-      navLinks.classList.remove('active');
-    });
-  });
-
-  // Testimonials Slider
-  const testimonialSlider = document.getElementById('testimonialsSlider');
-  const dots = document.querySelectorAll('.dot');
-  const testimonialWidth = document.querySelector('.testimonial-card').offsetWidth + 32; // Card width + gap
-  let currentIndex = 0;
-
-  // Set initial active dot
-  dots[0].classList.add('active');
-
-  // Click event for dots
-  dots.forEach((dot, index) => {
-    dot.addEventListener('click', () => {
-      currentIndex = index;
-      updateSlider();
-    });
-  });
-
-  function updateSlider() {
-    // Update slider position
-    testimonialSlider.scrollTo({
-      left: currentIndex * testimonialWidth,
-      behavior: 'smooth'
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', function () {
+      navLinks.classList.toggle('active');
     });
 
-    // Update active dot
-    dots.forEach((dot, i) => {
-      if (i === currentIndex) {
-        dot.classList.add('active');
-      } else {
-        dot.classList.remove('active');
-      }
+    // Close mobile menu when clicking on a link
+    const navItems = document.querySelectorAll('.nav-links li a');
+    navItems.forEach(item => {
+      item.addEventListener('click', function () {
+        navLinks.classList.remove('active');
+      });
     });
   }
 
-  // Listen for scroll events on the slider
-  testimonialSlider.addEventListener('scroll', function() {
-    const scrollPos = testimonialSlider.scrollLeft;
-    const newIndex = Math.round(scrollPos / testimonialWidth);
+  // Contact Form Submission
+ // Contact Form Submission
+ const contactForm = document.getElementById('contactForm');
+ contactForm.addEventListener('submit', async function (event) {
+   event.preventDefault();
 
-    if (newIndex !== currentIndex) {
-      currentIndex = newIndex;
+   const formData = {
+     name: document.getElementById('name')?.value || '',
+     email: document.getElementById('email')?.value || '',
+     message: document.getElementById('message')?.value || '',
+     ctsEmployee: document.getElementById('ctsEmployee')?.checked || false
+   };
 
-      // Update active dot
-      dots.forEach((dot, i) => {
-        if (i === currentIndex) {
-          dot.classList.add('active');
-        } else {
-          dot.classList.remove('active');
-        }
-      });
-    }
-  });
+   // Show loading screen
+   Swal.fire({
+     title: 'Sending...',
+     text: 'Please wait while we send your message.',
+     allowOutsideClick: false,
+     didOpen: () => {
+       Swal.showLoading();
+     }
+   });
 
-  // Auto scroll for testimonials (optional)
-  /*
-  setInterval(() => {
-    currentIndex = (currentIndex + 1) % dots.length;
-    updateSlider();
-  }, 5000);
-  */
+   try {
+     const response = await fetch('api/contact', {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json'
+       },
+       body: JSON.stringify(formData)
+     });
 
-  // Counter animation for stats
+     if (response.ok) {
+       contactForm.reset();
+
+       // Close the loading and show success
+       Swal.fire({
+         icon: 'success',
+         title: 'Message Sent!',
+         text: 'Thank you for reaching out.',
+         timer: 2000,
+         showConfirmButton: false
+       }).then(() => {
+         const modalElement = document.getElementById('contactUsModal');
+         const modal = bootstrap.Modal.getInstance(modalElement);
+         modal?.hide();
+       });
+     } else {
+       Swal.fire({
+         icon: 'error',
+         title: 'Oops...',
+         text: 'Error sending message. Please try again.',
+         confirmButtonColor: '#d33'
+       });
+     }
+   } catch (error) {
+     console.error('Error:', error);
+     Swal.fire({
+       icon: 'error',
+       title: 'Something went wrong!',
+       text: 'Please try again later.',
+       confirmButtonColor: '#d33'
+     });
+   }
+ });
+
+
+  // Open Contact Us Modal
+  const openModalButton = document.querySelector('#openContactUsModalButton');
+  if (openModalButton) {
+    openModalButton.addEventListener('click', function () {
+      const modal = new bootstrap.Modal(document.getElementById('contactUsModal'));
+      modal.show();
+    });
+  }
+
+  // Counter Animation for Stats
   const counters = document.querySelectorAll('.counter');
-  const speed = 200; // The lower the faster
+  const speed = 200;
 
   function animateCounter(counter) {
     const target = +counter.innerText.replace(/[^\d]/g, '');
@@ -115,8 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCount();
   }
 
-  // Intersection Observer for counters
-  const options = {
+  const observerOptions = {
     threshold: 0.7
   };
 
@@ -127,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.unobserve(entry.target);
       }
     });
-  }, options);
+  }, observerOptions);
 
   counters.forEach(counter => {
     observer.observe(counter);
