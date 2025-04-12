@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const hatchbackFields = document.getElementById('hatchbackFields');
     const coupeFields = document.getElementById('coupeFields');
     const filterButtons = document.querySelectorAll('.filter-btn');
-    const isCTSEmployee = document.getElementById('isCTSEmployee').checked;
+//    const isCTSEmployee = document.getElementById('isCTSEmployee').checked;
 
     // API Configuration
     const API_BASE = '/api/cars';
