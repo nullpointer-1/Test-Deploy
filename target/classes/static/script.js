@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const badgeColor = getBadgeColor(vehicleType);
             const features = getVehicleFeatures(vehicle, vehicleType);
 
-            const ctsMessage = vehicle.isCTSEmployee
+            const ctsMessage = vehicle.ctsemployee
                 ? `<div class="mt-2 alert alert-info p-2 small text-center fw-bold">
                      🧑‍💻 CTS Employee Special! Extra discounts unlocked 🎁
                   </div>` : '';

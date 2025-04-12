@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (!response.ok) throw new Error('Failed to add vehicle');
 
+                // Show success popup with SweetAlert2
                 showAlert('Vehicle added successfully!', 'success');
                 $('#addCarModal').modal('hide');
                 this.reset();
@@ -101,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const badgeColor = getBadgeColor(vehicleType);
             const features = getVehicleFeatures(vehicle, vehicleType);
 
-            const ctsMessage = vehicle.isCTSEmployee
+            const ctsMessage = vehicle.ctsemployee
                 ? `<div class="mt-2 alert alert-info p-2 small text-center fw-bold">
                      🧑‍💻 CTS Employee Special! Extra discounts unlocked 🎁
                   </div>` : '';
@@ -140,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
            `;
         }).join('');
 
-      
+        // ✅ Attach Delete Handlers
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', async function () {
                 const vehicleId = this.dataset.id;
