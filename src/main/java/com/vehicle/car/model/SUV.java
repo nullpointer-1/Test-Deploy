@@ -47,9 +47,20 @@ public class SUV extends Car {
 
     @Override
     public double getSalePrice() {
+
         double discountRate = (weight > 2000) ? 0.10 : 0.20;
+
+
+
+        if (this.getCTSEmployee()) {
+
+            discountRate += 0.10;
+        }
+
+
         return getRegularPrice() * (1 - discountRate);
     }
+
 
     @Override
     public String getDescription() {

@@ -24,7 +24,18 @@ public abstract class Car implements Vehicle {
     private int mileage;
     private String fuelType;
     private String transmission;
-   
+    private Boolean isCTSEmployee;
+
+
+    public boolean getCTSEmployee() {
+        return this.isCTSEmployee != null ? this.isCTSEmployee : false; // Default to false if null
+    }
+
+
+    public void setCTSEmployee(Boolean isCTSEmployee) {
+        this.isCTSEmployee = isCTSEmployee;
+    }
+
     public abstract double getSalePrice();
 
 
@@ -97,7 +108,7 @@ public abstract class Car implements Vehicle {
     }
 
     public Car(Long id, int speed, double regularPrice, String color, String model, int mileage, String fuelType,
-            String transmission) {
+            String transmission,Boolean isCTSEmployee) {
         this.id = id;
         this.speed = speed;
         this.regularPrice = regularPrice;
@@ -106,6 +117,7 @@ public abstract class Car implements Vehicle {
         this.mileage = mileage;
         this.fuelType = fuelType;
         this.transmission = transmission;
+        this.isCTSEmployee = isCTSEmployee;
     }
 
     @Override

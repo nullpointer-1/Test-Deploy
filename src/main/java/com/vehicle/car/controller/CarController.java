@@ -1,5 +1,6 @@
 package com.vehicle.car.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -97,6 +98,18 @@ public class CarController {
         return "redirect:/";
     }
 
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<Void> deleteCar(@PathVariable Long id) {
+        boolean deleted = carService.deleteCarById(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+
     @GetMapping
     @ResponseBody
     public List<Car> getAllCars() {
@@ -111,5 +124,8 @@ public class CarController {
         car.setFuelType(params.get("fuelType"));
         car.setTransmission(params.get("transmission"));
         car.setMileage(Integer.parseInt(params.getOrDefault("mileage", "0")));
+        car.setCTSEmployee(params.containsKey("isCTSEmployee"));
+
+
     }
 }

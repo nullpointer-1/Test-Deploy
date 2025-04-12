@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const hatchbackFields = document.getElementById('hatchbackFields');
     const coupeFields = document.getElementById('coupeFields');
     const filterButtons = document.querySelectorAll('.filter-btn');
+    const isCTSEmployee = document.getElementById('isCTSEmployee').checked;
 
     // API Configuration
     const API_BASE = '/api/cars';
@@ -19,9 +20,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize
     setupEventListeners();
     loadVehicles(currentFilter);
-
-
-
 
     // Event Listeners Setup
     function setupEventListeners() {
@@ -62,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (!response.ok) throw new Error('Failed to add vehicle');
 
+                // Show success popup with SweetAlert2
                 showAlert('Vehicle added successfully!', 'success');
                 $('#addCarModal').modal('hide');
                 this.reset();
@@ -103,40 +102,85 @@ document.addEventListener('DOMContentLoaded', function () {
             const badgeColor = getBadgeColor(vehicleType);
             const features = getVehicleFeatures(vehicle, vehicleType);
 
-            // SAFE PRICE HANDLING - UPDATED
-            const salePrice = vehicle.salePrice !== undefined ?
-                vehicle.salePrice.toFixed(2) :
-                vehicle.regularPrice.toFixed(2);
+            const ctsMessage = vehicle.isCTSEmployee
+                ? `<div class="mt-2 alert alert-info p-2 small text-center fw-bold">
+                     🧑‍💻 CTS Employee Special! Extra discounts unlocked 🎁
+                  </div>` : '';
 
-            const regularPrice = vehicle.regularPrice !== undefined ?
-                vehicle.regularPrice.toFixed(2) :
-                '0.00';
+            const salePrice = vehicle.salePrice !== undefined ? vehicle.salePrice.toFixed(2) : vehicle.regularPrice.toFixed(2);
+
+            const regularPrice = vehicle.regularPrice !== undefined ? vehicle.regularPrice.toFixed(2) : '0.00';
 
             return `
-                <div class="col">
-                    <div class="vehicle-card card h-100">
-                        <span class="type-badge ${badgeColor}">${vehicleType}</span>
-                        <img src="${getVehicleImage(vehicle, vehicleType)}" class="card-img-top" alt="${vehicle.model}">
-                        <div class="card-body">
-                            <h5 class="card-title">${vehicle.model}</h5>
-                            <p class="card-text text-muted">
-                                <i class="fas fa-palette me-1"></i>${vehicle.color}
-                                <i class="fas fa-tachometer-alt ms-3 me-1"></i>${vehicle.speed} km/h
-                            </p>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <div>
-                                    <span class="price-tag">₹${salePrice}</span>
-                                    <span class="original-price ms-2">₹${regularPrice}</span>
-                                </div>
-                                <div>${features}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
+               <div class="col">
+                   <div class="vehicle-card card h-100">
+                       <span class="type-badge ${badgeColor}">${vehicleType}</span>
+                       <img src="${getVehicleImage(vehicle, vehicleType)}" class="card-img-top" alt="${vehicle.model}">
+                       <div class="card-body">
+                           <h5 class="card-title">${vehicle.model}</h5>
+                           <p class="card-text text-muted">
+                               <i class="fas fa-palette me-1"></i>${vehicle.color}
+                               <i class="fas fa-tachometer-alt ms-3 me-1"></i>${vehicle.speed} km/h
+                           </p>
+                           ${ctsMessage}
+                           <div class="d-flex justify-content-between align-items-center mt-3">
+                               <div>
+                                   <span class="price-tag">₹${salePrice}</span>
+                                   <span class="original-price ms-2">₹${regularPrice}</span>
+                               </div>
+                               <div>${features}</div>
+                           </div>
+                           <div class="mt-3 text-end">
+                               <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${vehicle.id}">
+                                   <i class="fas fa-trash-alt me-1"></i>Delete
+                               </button>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+           `;
         }).join('');
-    }
 
+        // ✅ Attach Delete Handlers
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const vehicleId = this.dataset.id;
+                if (!vehicleId) return;
+
+                // Use SweetAlert2 for the delete confirmation
+                const result = await Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        showLoading(true);
+                        const response = await fetch(`${API_BASE}/delete/${vehicleId}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (!response.ok) throw new Error('Failed to delete vehicle');
+
+                        // Show success message with SweetAlert2
+                        Swal.fire('Deleted!', 'Your vehicle has been deleted.', 'success');
+                        loadVehicles(currentFilter);
+                    } catch (error) {
+                        // Show error message with SweetAlert2
+                        showAlert(error.message, 'danger');
+                    } finally {
+                        showLoading(false);
+                    }
+                }
+            });
+        });
+    }
 
     // Helper Functions
     function showLoading(show) {
@@ -149,19 +193,40 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function showAlert(message, type) {
-        const alert = document.createElement('div');
-        alert.className = `alert alert-${type} alert-dismissible fade show mb-4`;
-        alert.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        alertContainer.innerHTML = '';
-        alertContainer.prepend(alert);
+        let iconType = '';
+        let title = '';
 
-        setTimeout(() => {
-            alert.classList.remove('show');
-            setTimeout(() => alert.remove(), 150);
-        }, 5000);
+        // Determine icon based on the alert type
+        switch (type) {
+            case 'success':
+                iconType = 'success';
+                title = 'Success!';
+                break;
+            case 'danger':
+                iconType = 'error';
+                title = 'Oops!';
+                break;
+            default:
+                iconType = 'info';
+                title = 'Info';
+                break;
+        }
+
+        // Show SweetAlert2 popup with customized design and animation
+        Swal.fire({
+            title: title,
+            text: message,
+            icon: iconType,
+            showConfirmButton: true,
+            timer: 5000,
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+            willClose: () => {
+                // Optionally do something when the alert is closed
+            }
+        });
     }
 
     function getVehicleType(vehicle) {
@@ -196,6 +261,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return '';
         }
     }
+
     function getVehicleImage(vehicle, type) {
         const images = [
             'sedanimg1.jfif', 'sedanimg2.jfif',
@@ -203,15 +269,15 @@ document.addEventListener('DOMContentLoaded', function () {
             'coupeimg1.jfif', 'coupeimg2.jfif', 'coupeimg3.jfif',
             'suvimg1.jfif', 'suvimg2.jfif', 'suvimg3.jfif'
         ];
-       
+
         // Filter images based on the type
         const filteredImages = images.filter(image => image.toLowerCase().includes(type.toLowerCase()));
-    
+
         if (filteredImages.length === 0) {
             console.error('No images found for the specified type');
             return '';
         }
-    
+
         const randomImage = filteredImages[Math.floor(Math.random() * filteredImages.length)];
         return `./${randomImage}`;
     }

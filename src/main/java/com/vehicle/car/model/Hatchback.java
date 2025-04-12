@@ -20,6 +20,9 @@ public class Hatchback extends Car {
     @Override
     public double getSalePrice() {
         double discount = (bootspace < 250) ? 0.10 : 0.20;
+        if (this.getCTSEmployee()){
+            discount += 0.10;
+        }
         return getRegularPrice() * (1 - discount);
     }
 

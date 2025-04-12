@@ -56,4 +56,13 @@ public class CarService {
     public List<Coupe> getAllCoupes() {
         return coupeRepository.findAll();
     }
+
+    public boolean deleteCarById(Long id) {
+        if (carRepository.existsById(id)) {
+            carRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
 }

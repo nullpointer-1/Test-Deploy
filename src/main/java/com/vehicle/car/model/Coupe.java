@@ -21,9 +21,19 @@ public class Coupe extends Car {
 
     @Override
     public double getSalePrice() {
+
         double premium = isConvertible ? 0.15 : 0.05;
+
+
+        if (this.getCTSEmployee()) {
+
+            premium += 0.1; // Add 5% discount for CTS employees (or any value you want)
+        }
+
+        // Return the sale price with all discounts applied
         return getRegularPrice() * (1 - premium);
     }
+
 
     @Override
     public String getDescription() {

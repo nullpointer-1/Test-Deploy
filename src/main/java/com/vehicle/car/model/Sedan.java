@@ -44,6 +44,12 @@ public class Sedan extends Car {
 
     @Override
     public double getSalePrice() {
+
+        if (this.getCTSEmployee()) {
+            double discount = 0.10 * getRegularPrice();  // 5% discount
+            return Math.max(0, getRegularPrice() - discount);
+        }
+
         return Math.max(0, getRegularPrice() - manufacturerDiscount);
     }
 
